@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { FavouriteContext } from '../context/favourite';
 let genreids = {
     28: "Action",
     12: "Adventure",
@@ -20,16 +21,15 @@ let genreids = {
     10752: "War",
     37: "Western",
 };
-const Favourites = ({ favourites }) => {
-    const [genres, setGenres] = useState([]);
+const Favourites = () => {
+    const {favourites} =useContext(FavouriteContext);
     const [favouriteList , setFavouriteList]= useState(favourites);
     const [selectedGenreId ,setSelectedGenreId]= useState();
     const [searchedFavoutites , setSearchedFavourites]=useState(favourites);
-    useEffect(() => {
-        const genresIds = Array.from(new Set(favourites.map((favourite) => favourite.genre_ids[0])));
-        setGenres(genresIds);
-    }, [favourites]);
-    const handleSearch=(e)=>{
+  
+    const genres = useMemo(()=>Array.from(new Set(favourites.map((favourite) => favourite.genre_ids[0]))),[favourites]);
+
+    const handleSearch= useCallback((e)=>{
         const searchText=e.target.value;
         setFavouriteList(()=>{
             const filteredFavList = searchedFavoutites.filter((movie)=>movie.title.toLowerCase().includes(searchText));
@@ -37,21 +37,21 @@ const Favourites = ({ favourites }) => {
         })
 
 
-    };
-    const filterFavourites =(genreId)=>{
+    },[searchedFavoutites]);
+    const filterFavourites = useCallback((genreId)=>{
         setSearchedFavourites(()=>{
             const filteredFavList = genreId ? favourites.filter((movie)=>movie.genre_ids[0]===genreId): favourites;
             setFavouriteList(filteredFavList);
             return filteredFavList;
         })
 
-    }
-    const handleSort=(type)=>{
+    },[favourites])
+    const handleSort=useCallback((type)=>{
         setFavouriteList(()=>{
             const filteredFavList = [...searchedFavoutites].sort((a,b)=>  type==='asc'? a.popularity -b.popularity: b.popularity - a.popularity  );
             return filteredFavList;
         })
-    }
+    },[searchedFavoutites])
     return (
         <div className='favourite-page'>
             <h1>Favourite</h1>
@@ -102,9 +102,6 @@ const Favourites = ({ favourites }) => {
 
                 </div>
             </div>
-
-
-
         </div>
     )
 }

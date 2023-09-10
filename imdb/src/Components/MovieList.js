@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import MovieCard from './MovieCard'
 import Pagination from './Pagination';
 //import {movies as movieData} from '../mockData/movieData'
-const MovieList = ({setFavourites,favourites}) => {
+const MovieList = () => {
     const [movies,setMovies]=useState();
     const [moviePageStore ,setMoviePageStore]=useState({});
 
@@ -40,7 +40,7 @@ const MovieList = ({setFavourites,favourites}) => {
 
         {
             movies?.results?.map((movie,idx)=>{
-                return (<MovieCard  setFavourites={setFavourites} favourites={favourites}  movie={movie} />);
+                return (<MovieCard    movie={movie} />);
             })
         }
         {

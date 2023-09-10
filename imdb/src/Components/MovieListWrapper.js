@@ -1,7 +1,7 @@
 import MovieHeading from "./MovieHeading"
 import MovieList from "./MovieList"
 
-const MovieListWrapper=({setFavourites,favourites})=>{
+const MovieListWrapper=()=>{
     return(
         <div className="movie-list-wrapper">
             <div className="container">
@@ -9,7 +9,7 @@ const MovieListWrapper=({setFavourites,favourites})=>{
 
             <MovieHeading />
             < div className="movie-list-grid">
-            <MovieList  setFavourites={setFavourites} favourites={favourites}/>
+            <MovieList  />
             </div>
             
 
