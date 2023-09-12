@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { setActivePage } from '../store/productReducer';
 const getPageArray=(arrayLength,startNumber)=>{
     return[...Array(10)].map((item,idx)=>{
         return startNumber+idx+1;
     })
 }
 
-const Pagination = ({totalPages,fetchMovieData}) => {
+const Pagination = ({totalPages}) => {
     const totalPageButton=Math.min(totalPages,10);
     const pageArray = getPageArray(totalPageButton,0);
-    const [activePage,setActivePage]=useState(1);
+    //const [activePage,setActivePage]=useState(1);
     const [pages,setPages]=useState(pageArray);
-
+    const {activePage}= useSelector((state)=>state.products);
+    const dispatch=useDispatch()
     useEffect(()=>{
-        fetchMovieData(activePage);
+        //fetchMovieData(activePage);
         if(activePage>pages[pages.length-1]){
             const startNumber=activePage-totalPageButton;
             const newPageArray=getPageArray(totalPageButton,startNumber);
@@ -30,14 +33,14 @@ const Pagination = ({totalPages,fetchMovieData}) => {
     return (
         <div className='pagination'>
 
-            <button onClick={()=>{setActivePage(activePage-1)}} disabled={activePage===1}>Prev</button>
+            <button onClick={()=>{dispatch(setActivePage(activePage-1))}} disabled={activePage===1}>Prev</button>
             {
                 pages?.map((pageNumber) => {
-                    return (<button className={activePage===pageNumber?'selected':''} onClick={()=>setActivePage(pageNumber)}>{pageNumber}</button>)
+                    return (<button className={activePage===pageNumber?'selected':''} onClick={()=>dispatch(setActivePage(pageNumber))}>{pageNumber}</button>)
                 })
             }
-
-            <button disabled={totalPages===activePage} onClick={()=>{setActivePage(activePage+1)}}>Next</button>
+            <button disabled={totalPages===activePage} onClick={()=>{dispatch(setActivePage(activePage+1))}}>Next</button>
+        
         </div>
     )
 }

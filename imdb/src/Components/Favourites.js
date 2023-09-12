@@ -1,5 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FavouriteContext } from '../context/favourite';
+import { useDispatch, useSelector } from 'react-redux';
+import { setFavouriteList, setSearchedFavourites, setSelectedGenreId } from '../store/favouriteReducer';
 let genreids = {
     28: "Action",
     12: "Adventure",
@@ -22,36 +24,52 @@ let genreids = {
     37: "Western",
 };
 const Favourites = () => {
-    const {favourites} =useContext(FavouriteContext);
-    const [favouriteList , setFavouriteList]= useState(favourites);
-    const [selectedGenreId ,setSelectedGenreId]= useState();
-    const [searchedFavoutites , setSearchedFavourites]=useState(favourites);
-  
+    //const {favourites} =useContext(FavouriteContext);
+    const {favourites,selectedGenreId,favouriteList,searchedFavoutites} =useSelector((state)=>state.favourites)
+    //const [favouriteList , setFavouriteList]= useState(favourites);
+    //const [selectedGenreId ,setSelectedGenreId]= useState();
+    //const [searchedFavoutites , setSearchedFavourites]=useState(favourites);
+    const dispatch= useDispatch();
     const genres = useMemo(()=>Array.from(new Set(favourites.map((favourite) => favourite.genre_ids[0]))),[favourites]);
 
     const handleSearch= useCallback((e)=>{
         const searchText=e.target.value;
-        setFavouriteList(()=>{
-            const filteredFavList = searchedFavoutites.filter((movie)=>movie.title.toLowerCase().includes(searchText));
-            return filteredFavList;
-        })
+
+        // setFavouriteList(()=>{
+        //     const filteredFavList = searchedFavoutites.filter((movie)=>movie.title.toLowerCase().includes(searchText));
+        //     return filteredFavList;
+        // })
+        dispatch(setFavouriteList({type:'SEARCH', searchText}));
 
 
-    },[searchedFavoutites]);
-    const filterFavourites = useCallback((genreId)=>{
-        setSearchedFavourites(()=>{
-            const filteredFavList = genreId ? favourites.filter((movie)=>movie.genre_ids[0]===genreId): favourites;
-            setFavouriteList(filteredFavList);
-            return filteredFavList;
-        })
 
-    },[favourites])
-    const handleSort=useCallback((type)=>{
-        setFavouriteList(()=>{
-            const filteredFavList = [...searchedFavoutites].sort((a,b)=>  type==='asc'? a.popularity -b.popularity: b.popularity - a.popularity  );
-            return filteredFavList;
-        })
-    },[searchedFavoutites])
+    },[]);
+    
+    const handleSort=useCallback((sortType)=>{
+        // setFavouriteList(()=>{
+        //     const filteredFavList = [...searchedFavoutites].sort((a,b)=>  sortType ? a.popularity -b.popularity: b.popularity - a.popularity  );
+        //     return filteredFavList;
+        // })
+
+        dispatch(setFavouriteList({type:'SORT', sortType}));
+    },[]);
+
+    const filterFavourites = useCallback(()=>{
+        // setSearchedFavourites(()=>{
+        //     const filteredFavList = genreId ? favourites.filter((movie)=>movie.genre_ids[0]===genreId): favourites;
+        //     setFavouriteList(filteredFavList);
+        //     return filteredFavList;
+        // })
+
+        dispatch(setSearchedFavourites());
+        dispatch(setFavouriteList({type:"CATEGORY"}));
+
+    },[])
+
+    useEffect(()=>{
+        filterFavourites();
+
+    },[selectedGenreId]);
     return (
         <div className='favourite-page'>
             <h1>Favourite</h1>
@@ -59,9 +77,9 @@ const Favourites = () => {
                 <div className='left-section'>
                     <div className='genres-wrapper'>
                         <ul>
-                            <li className={!selectedGenreId ? 'selected':''} onClick={()=> {setSelectedGenreId();filterFavourites()}}>All Genres</li>
+                            <li className={!selectedGenreId ? 'selected':''} onClick={()=> {dispatch(setSelectedGenreId());}}>All Genres</li>
                             {genres?.map((genreId) => {
-                                return <li className={selectedGenreId ===genreId ? 'selected':''} onClick={()=> {setSelectedGenreId(genreId); filterFavourites(genreId)} }key={genreId}>{genreids[genreId]}</li>;
+                                return <li className={selectedGenreId ===genreId ? 'selected':''} onClick={()=> {dispatch(setSelectedGenreId(genreId)); } }key={genreId}>{genreids[genreId]}</li>;
                             })}
                         </ul>
 
@@ -76,7 +94,7 @@ const Favourites = () => {
                                 <th>Image</th>
                                 <th>Title</th>
                                 <th>Genre</th>
-                                <th><button onClick={()=>handleSort('dec')}>^</button>Popularity<button onClick={()=>handleSort('asc')}>v</button></th>
+                                <th><button onClick={()=>handleSort(false)}>^</button>Popularity<button onClick={()=>handleSort(true)}>v</button></th>
                                 <th>Rating</th>
                                 <th>Action</th>
                             </tr>
